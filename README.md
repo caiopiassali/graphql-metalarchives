@@ -7,7 +7,7 @@ So this repository exists to provide a way to recover these infos with a GraphQL
 
 ### Demo
 
-[Try Demo](http://localhost:4000/)
+[Live Demo](https://graphql-metalarchives.glitch.me/)
 
 ### Install
 
