@@ -17,6 +17,10 @@
     "email": "caio.santana@fatec.sp.gov.br",
     "url": "https://github.com/caiopiassali"
   },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/caiopiassali/graphql-metalarchives.git"
+  },
   "license": "GPL-2.0",
   "dependencies": {
     "axios": "^0.18.0",

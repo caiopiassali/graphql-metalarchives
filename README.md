@@ -13,7 +13,7 @@ So this repository exists to provide a way to recover these infos with a GraphQL
 
 1. Clone this repository
 ```sh
-git clone https://github.com/caiopiassali/graphql-metalarchives
+git clone https://github.com/caiopiassali/graphql-metalarchives.git
 ```
 
 2. Navigate to project folder
