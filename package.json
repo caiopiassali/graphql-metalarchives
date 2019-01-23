@@ -1,0 +1,30 @@
+{
+  "name": "graphql-metalarchives",
+  "version": "0.0.1",
+  "description": "GraphQL API for metal-archives.com",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "graphql",
+    "node.js",
+    "metal-archives"
+  ],
+  "author": {
+    "name": "Caio Piassali",
+    "email": "caio.santana@fatec.sp.gov.br",
+    "url": "https://github.com/caiopiassali"
+  },
+  "license": "GPL-2.0",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "graphql": "^14.1.1",
+    "graphql-yoga": "^1.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  }
+}
