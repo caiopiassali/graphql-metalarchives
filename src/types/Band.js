@@ -1,15 +1,16 @@
 const {
     GraphQLObjectType,
     GraphQLList,
-    GraphQLString
+    GraphQLString,
+    GraphQLInt
 } = require('graphql');
 
 // Types //
 const AlbumsType = require('./Albums');
+const ReviewsType = require('./Reviews');
 
 // Resolvers //
-// Band //
-const { getBandDiscs } = require('../resolvers/Band');
+const { getBandDiscs, getBandReviews } = require('../resolvers');
 
 module.exports = new GraphQLObjectType({
     name: 'Band',
@@ -73,6 +74,18 @@ module.exports = new GraphQLObjectType({
                 }
             },
             resolve: async (band, args) => await getBandDiscs({ id: band.id, type: args.type })
+        },
+        reviews: {
+            type: GraphQLList(ReviewsType),
+            description: `Band reviews\\
+                (Like Bands, always show 200 records)`,
+            args: {
+                start: {
+                    type: GraphQLInt,
+                    description: 'Specifies start index to show bands'
+                }
+            },
+            resolve: async (band, args) => await getBandReviews({ id: band.id, start: args.start })
         }
     })
 });

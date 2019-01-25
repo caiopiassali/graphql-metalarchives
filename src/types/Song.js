@@ -8,8 +8,7 @@ const {
 const LyricsType = require('./Lyrics');
 
 // Resolvers //
-// Lyrics //
-const { getLyrics } = require('../resolvers/Lyrics');
+const { getLyrics } = require('../resolvers');
 
 module.exports = new GraphQLObjectType({
     name: 'Song',

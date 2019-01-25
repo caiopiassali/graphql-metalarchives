@@ -4,24 +4,24 @@ const {
 } = require('graphql');
 
 module.exports = new GraphQLObjectType({
-    name: 'Bands',
-    description: 'Band Attributes',
+    name: 'Reviews',
+    description: 'Review Attributes',
     fields: () => ({
         id: {
             type: GraphQLString,
-            description: 'Band unique identifier'
+            description: 'Review unique identifier'
         },
-        name: {
+        album: {
             type: GraphQLString,
-            description: 'Band name'
+            description: 'Album name'
         },
-        genre: {
+        rating: {
             type: GraphQLString,
-            description: 'Band genres'
+            description: 'Review rating'
         },
-        country: {
+        date: {
             type: GraphQLString,
-            description: 'Country of origin'
+            description: 'Review publication date'
         }
     })
 });

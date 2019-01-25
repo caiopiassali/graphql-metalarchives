@@ -11,6 +11,7 @@ const BandsType = require('./Bands');
 const BandType = require('./Band');
 const AlbumType = require('./Album');
 const LyricsType = require('./Lyrics');
+const ReviewType = require('./Review');
 
 // Resolvers //
 const {
@@ -19,7 +20,9 @@ const {
     // Album //
     getAlbum,
     // Lyrics //
-    getLyrics
+    getLyrics,
+    // Review //
+    getReview
 } = require('../resolvers');
 
 const QueryType = new GraphQLObjectType({
@@ -30,14 +33,18 @@ const QueryType = new GraphQLObjectType({
         bands: {
             type: GraphQLList(BandsType),
             description: `Get Band List.\\
-                Aways show 200 records (1st page), to show another page pass arg "start" with number multiple of 200\\
+                Always show 200 records (1st page), to show another page pass arg "start" with number multiple of 200\\
                 **Examples:**\\
                 600 -> returns page 4\\
                 11000 -> returns page 56`,
             args: {
-                filter: {
+                name: {
                     type: GraphQLString,
-                    description: 'Query to search bands'
+                    description: 'Query band name'
+                },
+                genre: {
+                    type: GraphQLString,
+                    description: 'Query band genre'
                 },
                 start: {
                     type: GraphQLInt,
@@ -80,6 +87,22 @@ const QueryType = new GraphQLObjectType({
                 }
             },
             resolve: async (root, args) => await getLyrics(args)
+        },
+        // Review //
+        review: {
+            type: ReviewType,
+            description: 'Get Review Attributes',
+            args: {
+                id: {
+                    type: GraphQLNonNull(GraphQLString),
+                    description: 'Review unique identifier'
+                },
+                albumId: {
+                    type: GraphQLNonNull(GraphQLString),
+                    description: 'Album unique identifier'
+                }
+            },
+            resolve: async (root, args) => await getReview(args)
         }
     })
 });

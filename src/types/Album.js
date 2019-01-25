@@ -6,10 +6,10 @@ const {
 
 // Types //
 const SongType = require('./Song');
+const AlbumReviews = require('./AlbumReviews');
 
 // Resolvers //
-// Disc //
-const { getAlbumSongs } = require('../resolvers/Album');
+const { getAlbumSongs, getAlbumReviews } = require('../resolvers');
 
 module.exports = new GraphQLObjectType({
     name: 'Album',
@@ -51,6 +51,11 @@ module.exports = new GraphQLObjectType({
             type: GraphQLList(SongType),
             description: 'Album songs list',
             resolve: async (disc) => await getAlbumSongs({ id: disc.id })
+        },
+        reviews: {
+            type: GraphQLList(AlbumReviews),
+            description: 'Album reviews',
+            resolve: async (disc) => await getAlbumReviews({ id: disc.id })
         }
     })
 });
