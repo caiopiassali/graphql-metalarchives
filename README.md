@@ -132,32 +132,24 @@ query {
 }
 ```
 
-##### Filter Bands
-```sh
-query {
-  bands(filter: "Heavenly") {
-    id,
-    name,
-    genre,
-    country
-  }
-}
-```
-
 ### To-Do
 
 ###### Queries
 * Artists
-* Reviews
+* ~~Reviews~~
 
 ###### Band
 * Get members
-* Get reviews
+* ~~Get reviews~~
 
 ###### Album
 * Get lineup
 * Get other versions
-* Get reviews
+* ~~Get reviews~~
+
+## Changelog
+
+Read [CHANGELOG.md](CHANGELOG.md) for release details and changes.
 
 ## License
 

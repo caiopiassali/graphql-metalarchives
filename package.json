@@ -1,6 +1,6 @@
 {
   "name": "graphql-metalarchives",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "GraphQL API for metal-archives.com",
   "main": "server.js",
   "scripts": {
