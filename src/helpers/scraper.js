@@ -132,7 +132,10 @@ class Scraper {
                     const yearsActive = $('#band_stats .float_right').nextAll().eq(0).children()
                         .eq(1)
                         .text()
-                        .replace(/\s/g, '');
+                        .trim()
+                        .replace(/[\s|\n|\t]/g, '')
+                        .replace(/(\(as)/g,'(as ')
+                        .replace(/(,)/g,', ');
                     const photoUrl = $('#photo').attr('href');
                     const logoUrl = $('#logo').attr('href');
                     const band = {
@@ -253,11 +256,19 @@ class Scraper {
                 .then(({ data }) => {
                     const reviews = data.aaData;
                     const resp = [];
+                    const getAlbumId = (str) => {
+                        let indices = [];
+                        for(let i = 0; i < str.length; i++) {
+                            if (str[i] === "/") indices.push(i);
+                        }
+                        return str.substring(indices[indices.length - 3] + 1, indices[indices.length - 2]);
+                    };
                     reviews.forEach((review) => {
                         const $ = cheerio.load(review[0]);
                         const aHref = $('a').attr('href');
                         const reviewObj = {
                             id: parseInt(aHref.substr(aHref.lastIndexOf('/') + 1), 10),
+                            albumId: getAlbumId(aHref),
                             album: $('a').text().trim(),
                             rating: review[1],
                             date: review[3]

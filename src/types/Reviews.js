@@ -11,6 +11,10 @@ module.exports = new GraphQLObjectType({
             type: GraphQLString,
             description: 'Review unique identifier'
         },
+        albumId: {
+            type: GraphQLString,
+            description: 'Album unique identifier'
+        },
         album: {
             type: GraphQLString,
             description: 'Album name'

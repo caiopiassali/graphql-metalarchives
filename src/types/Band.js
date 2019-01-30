@@ -78,11 +78,11 @@ module.exports = new GraphQLObjectType({
         reviews: {
             type: GraphQLList(ReviewsType),
             description: `Band reviews\\
-                (Like Bands, always show 200 records)`,
+                (Always show 200 records)`,
             args: {
                 start: {
                     type: GraphQLInt,
-                    description: 'Specifies start index to show bands'
+                    description: 'Specifies start index to show reviews'
                 }
             },
             resolve: async (band, args) => await getBandReviews({ id: band.id, start: args.start })
