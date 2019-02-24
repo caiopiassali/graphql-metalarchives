@@ -18,8 +18,8 @@
     "url": "https://github.com/caiopiassali"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/caiopiassali/graphql-metalarchives.git"
+    "type": "git",
+    "url": "https://github.com/caiopiassali/graphql-metalarchives.git"
   },
   "license": "GPL-2.0",
   "dependencies": {

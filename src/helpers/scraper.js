@@ -234,7 +234,10 @@ class Scraper {
                     const band = $('#album_content h2.band_name').text().trim();
                     const rating = $('h3.reviewTitle').text().substr($('h3.reviewTitle').text().lastIndexOf('-') + 1, 10).trim();
                     const divText = $('h3.reviewTitle').nextAll().eq(0).text().trim();
-                    const date = divText.substring(divText.indexOf(',') + 2, divText.indexOf('\n')).trim();
+                    const divText2 = divText.substr(divText.indexOf(',') + 2);
+                    const date = divText2.indexOf('\n') === -1 ?
+                        divText2.substring(divText2.indexOf('\n')).trim() :
+                        divText2.substring(0, divText2.indexOf('\n')).trim();
                     const text = $('div.reviewContent').text().trim();
                     const review = {
                         id,
@@ -296,10 +299,10 @@ class Scraper {
                             const rating = $(el).children().nextAll().eq(1).text().trim();
                             const date = $(el).children().nextAll().eq(3).text().trim();
                             reviews.push({
-                               id,
-                               title,
-                               rating,
-                               date
+                                id,
+                                title,
+                                rating,
+                                date
                             });
                         } catch (e) {}
                     });
