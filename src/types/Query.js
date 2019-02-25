@@ -11,6 +11,7 @@ const BandsType = require('./Bands');
 const BandType = require('./Band');
 const AlbumType = require('./Album');
 const LyricsType = require('./Lyrics');
+const ReviewsType = require('./Reviews');
 const ReviewType = require('./Review');
 
 // Resolvers //
@@ -22,44 +23,44 @@ const {
     // Lyrics //
     getLyrics,
     // Review //
-    getReview
+    getReviews, getReview
 } = require('../resolvers');
 
 const QueryType = new GraphQLObjectType({
     name: 'Root',
-    description: 'Metal Archives Bands, Albums & Songs',
+    description: 'GraphQL API for metal-archives.com.',
     fields: () => ({
         // Band //
         bands: {
             type: GraphQLList(BandsType),
             description: `Get Band List.\\
-                Always show 200 records (1st page), to show another page pass arg "start" with number multiple of 200\\
+                Always show 200 records (1st page), to show another page pass arg "start" with number multiple of 200.\\
                 **Examples:**\\
                 600 -> returns page 4\\
                 11000 -> returns page 56`,
             args: {
                 name: {
                     type: GraphQLString,
-                    description: 'Query band name'
+                    description: 'Band name.'
                 },
                 genre: {
                     type: GraphQLString,
-                    description: 'Query band genre'
+                    description: 'Band genre.'
                 },
                 start: {
                     type: GraphQLInt,
-                    description: 'Specifies start index to show bands'
+                    description: 'Specifies start index to show bands.'
                 }
             },
             resolve: async (root, args) => await getBands(args)
         },
         band: {
             type: BandType,
-            description: 'Get Band Attributes',
+            description: 'Get Band Attributes.',
             args: {
                 id: {
                     type: GraphQLNonNull(GraphQLString),
-                    description: 'Band unique identifier'
+                    description: 'Band unique identifier.'
                 }
             },
             resolve: async (root, args) => await getBand(args)
@@ -67,11 +68,11 @@ const QueryType = new GraphQLObjectType({
         // Album //
         album: {
             type: AlbumType,
-            description: 'Get Album Details',
+            description: 'Get Album Details.',
             args: {
                 id: {
                     type: GraphQLNonNull(GraphQLString),
-                    description: 'Album unique identifier'
+                    description: 'Album unique identifier.'
                 }
             },
             resolve: async (root, args) => await getAlbum(args)
@@ -79,27 +80,50 @@ const QueryType = new GraphQLObjectType({
         // Lyrics //
         lyrics: {
             type: LyricsType,
-            description: 'Get Song Lyrics',
+            description: 'Get Song Lyrics.',
             args: {
                 id: {
                     type: GraphQLNonNull(GraphQLString),
-                    description: 'Lyrics unique identifier'
+                    description: 'Lyrics unique identifier.'
                 }
             },
             resolve: async (root, args) => await getLyrics(args)
         },
         // Review //
+        reviews: {
+            type: GraphQLList(ReviewsType),
+            description: 'Get Reviews List.',
+            args: {
+                year: {
+                    type: GraphQLString,
+                    description: 'Publication year. Default value is current Year.',
+                },
+                month: {
+                    type: GraphQLString,
+                    description: 'Publication month. Default value is current Month.'
+                },
+                sort: {
+                    type: GraphQLString,
+                    description: 'Sort reviews by date [`asc` | `desc`].'
+                },
+                start: {
+                    type: GraphQLInt,
+                    description: 'Specifies start index to show reviews.'
+                }
+            },
+            resolve: async (root, args) => await getReviews(args)
+        },
         review: {
             type: ReviewType,
-            description: 'Get Review Attributes',
+            description: 'Get Review Attributes.',
             args: {
                 id: {
                     type: GraphQLNonNull(GraphQLString),
-                    description: 'Review unique identifier'
+                    description: 'Review unique identifier.'
                 },
                 albumId: {
                     type: GraphQLNonNull(GraphQLString),
-                    description: 'Album unique identifier'
+                    description: 'Album unique identifier.'
                 }
             },
             resolve: async (root, args) => await getReview(args)

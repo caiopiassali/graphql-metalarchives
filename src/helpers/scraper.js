@@ -1,13 +1,18 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
 
+const {
+    getReviewAlbumId,
+    formatDate
+} = require('./utils');
+
 const GET_ALL_BANDS_URL = 'https://www.metal-archives.com/search/ajax-advanced/searching/bands/?iDisplayStart=';
-//const GET_ALL_BANDS_URL = 'https://www.metal-archives.com/search/ajax-band-search/?field=name&query=';
 const GET_BAND_URL = 'https://www.metal-archives.com/bands/sieversiever/';
 const GET_DISC_URL = 'https://www.metal-archives.com/albums///';
 const GET_DISCOG_URL = 'https://www.metal-archives.com/band/discography/id/';
 const SEARCH_SONGS_URL = 'https://www.metal-archives.com/search/ajax-advanced/searching/songs';
 const GET_LYRISC_URL = 'https://www.metal-archives.com/release/ajax-view-lyrics/id/';
+const GET_ALL_REVIEWS_BY_DATE_URL = 'https://www.metal-archives.com/review/ajax-list-browse/by/date/selection/';
 const GET_BAND_REVIEWS_URL = 'https://www.metal-archives.com/review/ajax-list-band/id/';
 
 class Scraper {
@@ -223,6 +228,29 @@ class Scraper {
         });
     }
 
+    static getReviews(year, month, sort, start) {
+        return new Promise((resolve, reject) => {
+            axios.get(`${GET_ALL_REVIEWS_BY_DATE_URL}${year}-${month}?sEcho=1&iColumns=7&sColumns=&iDisplayStart=${start}&iDisplayLength=200&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&mDataProp_4=4&mDataProp_5=5&mDataProp_6=6&iSortCol_0=1&sSortDir_0=${sort}`)
+                .then(({ data }) => {
+                    const reviews = data.aaData;
+                    const resp = [];
+                    reviews.forEach((review) => {
+                        const $ = cheerio.load(review[1]);
+                        const aHref = $('a').attr('href');
+                        const reviewObj = {
+                            id: aHref.substr(aHref.lastIndexOf('/') + 1),
+                            albumId: getReviewAlbumId(aHref),
+                            album: $(review[3]).text().trim(),
+                            rating: review[4],
+                            date: formatDate(review[0], year)
+                        };
+                        resp.push(reviewObj);
+                    });
+                    resolve(resp);
+                }).catch(err => reject(err));
+        });
+    }
+
     static getReview(reviewID, albumID) {
         return new Promise((resolve, reject) => {
             axios.get(`https://www.metal-archives.com/reviews///${albumID}//${reviewID}`)
@@ -253,25 +281,18 @@ class Scraper {
         });
     }
 
-    static getReviews(bandID, start) {
+    static getBandReviews(bandID, start) {
         return new Promise((resolve, reject) => {
             axios.get(`${GET_BAND_REVIEWS_URL + bandID.toString()}/json/1?sEcho=1&iColumns=4&sColumns=&iDisplayLength=200&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&iSortCol_0=3&sSortDir_0=desc&iDisplayStart=${start}`)
                 .then(({ data }) => {
                     const reviews = data.aaData;
                     const resp = [];
-                    const getAlbumId = (str) => {
-                        let indices = [];
-                        for(let i = 0; i < str.length; i++) {
-                            if (str[i] === "/") indices.push(i);
-                        }
-                        return str.substring(indices[indices.length - 3] + 1, indices[indices.length - 2]);
-                    };
                     reviews.forEach((review) => {
                         const $ = cheerio.load(review[0]);
                         const aHref = $('a').attr('href');
                         const reviewObj = {
                             id: parseInt(aHref.substr(aHref.lastIndexOf('/') + 1), 10),
-                            albumId: getAlbumId(aHref),
+                            albumId: getReviewAlbumId(aHref),
                             album: $('a').text().trim(),
                             rating: review[1],
                             date: review[3]

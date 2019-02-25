@@ -12,35 +12,35 @@ const { getLyrics } = require('../resolvers');
 
 module.exports = new GraphQLObjectType({
     name: 'Song',
-    description: 'Song Attributes',
+    description: 'Song Attributes.',
     fields: () => ({
         number: {
             type: GraphQLInt,
-            description: 'Song number'
+            description: 'Song number.'
         },
         title: {
             type: GraphQLString,
-            description: 'Song title'
+            description: 'Song title.'
         },
         band: {
             type: GraphQLString,
-            description: 'Band name'
+            description: 'Band name.'
         },
         album: {
             type: GraphQLString,
-            description: 'Album name'
+            description: 'Album name.'
         },
         length: {
             type: GraphQLString,
-            description: 'Song duration'
+            description: 'Song duration.'
         },
         lyricsId: {
             type: GraphQLString,
-            description: 'Lyrics unique identifier'
+            description: 'Lyrics unique identifier.'
         },
         lyrics: {
             type: LyricsType,
-            description: 'Song lyrics',
+            description: 'Song lyrics.',
             resolve: async (song) => await getLyrics({ id: song.lyricsId })
         }
     })

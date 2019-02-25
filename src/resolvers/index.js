@@ -6,7 +6,7 @@ const { getAlbum, getAlbumSongs, getAlbumReviews } = require('./Album');
 // Lyrics //
 const { getLyrics } = require('./Lyrics');
 // Review //
-const { getReview } = require('./Review');
+const { getReviews, getReview } = require('./Review');
 
 module.exports = {
     // Band //
@@ -21,5 +21,6 @@ module.exports = {
     // Lyrics //
     getLyrics,
     // Review //
+    getReviews,
     getReview
 };

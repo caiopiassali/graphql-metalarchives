@@ -5,23 +5,23 @@ const {
 
 module.exports = new GraphQLObjectType({
     name: 'Bands',
-    description: 'Band Attributes',
+    description: 'Band Attributes.',
     fields: () => ({
         id: {
             type: GraphQLString,
-            description: 'Band unique identifier'
+            description: 'Band unique identifier.'
         },
         name: {
             type: GraphQLString,
-            description: 'Band name'
+            description: 'Band name.'
         },
         genre: {
             type: GraphQLString,
-            description: 'Band genres'
+            description: 'Band genres.'
         },
         country: {
             type: GraphQLString,
-            description: 'Country of origin'
+            description: 'Country of origin.'
         }
     })
 });

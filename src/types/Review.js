@@ -5,35 +5,35 @@ const {
 
 module.exports = new GraphQLObjectType({
     name: 'Review',
-    description: 'Review Attributes',
+    description: 'Review Attributes.',
     fields: () => ({
         id: {
             type: GraphQLString,
-            description: 'Review unique identifier'
+            description: 'Review unique identifier.'
         },
         title: {
             type: GraphQLString,
-            description: 'Review title'
+            description: 'Review title.'
         },
         album: {
             type: GraphQLString,
-            description: 'Album name'
+            description: 'Album name.'
         },
         band: {
             type: GraphQLString,
-            description: 'Band name'
+            description: 'Band name.'
         },
         rating: {
             type: GraphQLString,
-            description: 'Review rating'
+            description: 'Review rating.'
         },
         date: {
             type: GraphQLString,
-            description: 'Review publication date'
+            description: 'Review publication date.'
         },
         text: {
             type: GraphQLString,
-            description: 'Review text'
+            description: 'Review text.'
         }
     })
 });

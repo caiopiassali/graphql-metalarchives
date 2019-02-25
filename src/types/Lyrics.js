@@ -5,15 +5,15 @@ const {
 
 module.exports = new GraphQLObjectType({
     name: 'Lyrics',
-    description: 'Song Lyrics Attributes',
+    description: 'Song Lyrics Attributes.',
     fields: () => ({
         id: {
             type: GraphQLString,
-            description: 'Lyrics unique identifier'
+            description: 'Lyrics unique identifier.'
         },
         lyrics: {
             type: GraphQLString,
-            description: 'Lyrics'
+            description: 'Lyrics.'
         }
     })
 });

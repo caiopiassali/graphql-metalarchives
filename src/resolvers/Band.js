@@ -14,6 +14,6 @@ module.exports = {
     },
     getBandReviews: async (args) => {
         const start = args.start || 0;
-        return await Scraper.getReviews(args.id, start);
+        return await Scraper.getBandReviews(args.id, start);
     }
 };

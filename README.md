@@ -136,16 +136,18 @@ query {
 
 ###### Queries
 * Artists
-* ~~Reviews~~
+
+###### Search
+* Advanced Bands search
+* Advanced Albums search
+* Advanced Songs search
 
 ###### Band
 * Get members
-* ~~Get reviews~~
 
 ###### Album
 * Get lineup
 * Get other versions
-* ~~Get reviews~~
 
 ## Changelog
 
