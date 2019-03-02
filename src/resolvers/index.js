@@ -1,26 +1,28 @@
 // Resolvers //
 // Band //
-const { getBands, getBand, getBandDiscs, getBandReviews } = require('./Band');
+const { getBands, getBand, getRandomBand, getBandDiscs, getBandReviews } = require('./Band');
 // Album //
-const { getAlbum, getAlbumSongs, getAlbumReviews } = require('./Album');
+const { getAlbum, getAlbumSongs, getAlbumReviews, getAlbumVersions } = require('./Album');
 // Lyrics //
 const { getLyrics } = require('./Lyrics');
 // Review //
-const { getReviews, getReview } = require('./Review');
+const { getReviewsByDate, getReview } = require('./Review');
 
 module.exports = {
     // Band //
     getBands,
     getBand,
+    getRandomBand,
     getBandDiscs,
     getBandReviews,
     // Album //
     getAlbum,
     getAlbumSongs,
     getAlbumReviews,
+    getAlbumVersions,
     // Lyrics //
     getLyrics,
     // Review //
-    getReviews,
+    getReviewsByDate,
     getReview
 };

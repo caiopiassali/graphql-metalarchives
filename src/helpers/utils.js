@@ -12,7 +12,27 @@ const formatDate = (date, year) => {
     return `${date}, ${year}`;
 };
 
+const getMonthNumber = (monthName) => {
+    const months = [{long: 'January', short: 'Jan'},
+        {long: 'February', short: 'Feb'},
+        {long: 'March', short: 'Mar'},
+        {long: 'April', short: 'Apr'},
+        {long: 'May', short: 'May'},
+        {long: 'June', short: 'June'},
+        {long: 'July', short: 'July'},
+        {long: 'August', short: 'Aug'},
+        {long: 'September', short: 'Sept'},
+        {long: 'October', short: 'Oct'},
+        {long: 'November', short: 'Nov'},
+        {long: 'December', short: 'Dec'}];
+
+    let n = months.findIndex(el => el.long.toLowerCase() === monthName.toLowerCase() || el.short.toLowerCase() === monthName.toLowerCase());
+    n = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 }).format(n + 1);
+    return n !== -1 ? n : new Date().getMonth() + 1;
+};
+
 module.exports = {
     getReviewAlbumId,
-    formatDate
+    formatDate,
+    getMonthNumber
 };

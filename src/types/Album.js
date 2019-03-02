@@ -6,56 +6,62 @@ const {
 
 // Types //
 const SongType = require('./Song');
-const AlbumReviews = require('./AlbumReviews');
+const AlbumReview = require('./AlbumReview');
+const AlbumVersion = require('./AlbumVersion');
 
 // Resolvers //
-const { getAlbumSongs, getAlbumReviews } = require('../resolvers');
+const { getAlbumSongs, getAlbumReviews, getAlbumVersions } = require('../resolvers');
 
 module.exports = new GraphQLObjectType({
     name: 'Album',
-    description: 'Album Attributes',
+    description: 'Album Attributes.',
     fields: () => ({
         id: {
             type: GraphQLString,
-            description: 'Album unique identifier'
+            description: 'Album unique identifier.'
         },
         name: {
             type: GraphQLString,
-            description: 'Album name'
+            description: 'Album name.'
         },
         band: {
             type: GraphQLString,
-            description: 'Band name'
+            description: 'Band name.'
         },
         type: {
             type: GraphQLString,
-            description: 'Album yype'
+            description: 'Album type.'
         },
         releaseDate: {
             type: GraphQLString,
-            description: 'Release date'
+            description: 'Release date.'
         },
         label: {
             type: GraphQLString,
-            description: 'Album label'
+            description: 'Album label.'
         },
         format: {
             type: GraphQLString,
-            description: 'Album format'
+            description: 'Album format.'
         },
         coverUrl: {
             type: GraphQLString,
-            description: 'Album cover url'
+            description: 'Album cover url.'
         },
         songs: {
             type: GraphQLList(SongType),
-            description: 'Album songs list',
+            description: 'Album songs list.',
             resolve: async (disc) => await getAlbumSongs({ id: disc.id })
         },
         reviews: {
-            type: GraphQLList(AlbumReviews),
-            description: 'Album reviews',
+            type: GraphQLList(AlbumReview),
+            description: 'Album reviews.',
             resolve: async (disc) => await getAlbumReviews({ id: disc.id })
+        },
+        versions: {
+            type: GraphQLList(AlbumVersion),
+            description: 'Album versions.',
+            resolve: async (disc) => await getAlbumVersions({ id: disc.id })
         }
     })
 });

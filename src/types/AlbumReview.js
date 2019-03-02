@@ -4,7 +4,7 @@ const {
 } = require('graphql');
 
 module.exports = new GraphQLObjectType({
-    name: 'AlbumReviews',
+    name: 'AlbumReview',
     description: 'Review Attributes.',
     fields: () => ({
         id: {

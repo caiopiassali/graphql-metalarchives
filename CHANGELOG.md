@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.0.4] - 2019-03-02
+### Added
+- Advanced Band search.
+- Get Album versions.
+- Get random Band.
+
 ## [0.0.3] - 2019-02-24
 ### Added
 - Reviews Query (Get all reviews).

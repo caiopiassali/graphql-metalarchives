@@ -6,14 +6,15 @@ const {
     formatDate
 } = require('./utils');
 
-const GET_ALL_BANDS_URL = 'https://www.metal-archives.com/search/ajax-advanced/searching/bands/?iDisplayStart=';
-const GET_BAND_URL = 'https://www.metal-archives.com/bands/sieversiever/';
-const GET_DISC_URL = 'https://www.metal-archives.com/albums///';
-const GET_DISCOG_URL = 'https://www.metal-archives.com/band/discography/id/';
-const SEARCH_SONGS_URL = 'https://www.metal-archives.com/search/ajax-advanced/searching/songs';
-const GET_LYRISC_URL = 'https://www.metal-archives.com/release/ajax-view-lyrics/id/';
-const GET_ALL_REVIEWS_BY_DATE_URL = 'https://www.metal-archives.com/review/ajax-list-browse/by/date/selection/';
-const GET_BAND_REVIEWS_URL = 'https://www.metal-archives.com/review/ajax-list-band/id/';
+const BASE_URL = 'https://www.metal-archives.com';
+const GET_ALL_BANDS_URL = BASE_URL + '/search/ajax-advanced/searching/bands/';
+const GET_BAND_URL = BASE_URL + '/bands/sieversiever/';
+const GET_DISC_URL = BASE_URL + '/albums///';
+const GET_DISCOG_URL = BASE_URL + '/band/discography/id/';
+const SEARCH_SONGS_URL = BASE_URL + '/search/ajax-advanced/searching/songs';
+const GET_LYRISC_URL = BASE_URL + '/release/ajax-view-lyrics/id/';
+const GET_ALL_REVIEWS_BY_DATE_URL = BASE_URL + '/review/ajax-list-browse/by/date/selection/';
+const GET_BAND_REVIEWS_URL = BASE_URL + '/review/ajax-list-band/id/';
 
 class Scraper {
     static searchSongs(songTitle, bandName, lyrics, start, length) {
@@ -49,39 +50,6 @@ class Scraper {
         });
     }
 
-    static getDiscSongs(discID) {
-        return new Promise((resolve, reject) => {
-            axios.get(GET_DISC_URL + discID.toString())
-                .then(({ data }) => {
-                    let songs = [];
-                    const $ = cheerio.load(data);
-                    const band = $('.band_name a').text();
-                    const album = $('.album_name a').text();
-                    const discSongs = $('#album_tabs table.display.table_lyrics tbody').find('tr');
-                    discSongs.each((i, el) => {
-                        const elClass = $(el).attr('class');
-                        if (elClass !== 'even' && elClass !== 'odd') {
-                            return;
-                        }
-                        const number = $(el).find('td').eq(0).text();
-                        const title = $(el).find('td').eq(1).text().trim();
-                        const length = $(el).find('td').eq(2).text();
-                        const lyricsId = $(el).nextAll().find('td[id*=lyrics_]').attr('id').replace('lyrics_','');
-                        const song = {
-                            number,
-                            title,
-                            band,
-                            album,
-                            length,
-                            lyricsId
-                        };
-                        songs.push(song);
-                    });
-                    resolve(songs);
-                }).catch(err => reject(err));
-        });
-    }
-
     static getLyrics(lyricsId) {
         return new Promise((resolve, reject) => {
             axios.get(`${GET_LYRISC_URL}${lyricsId.toString()}`)
@@ -97,10 +65,13 @@ class Scraper {
         });
     }
 
-    static getBands(bandName, genre, start) {
+    static getBands(bandName, genre, country, formationFrom, formationTo, status, start) {
+        let countries = country.split(',').map(value => `&country[]=${value}`);
+        if (countries.length === 1) countries.push(countries[0]);
+        let statuses = status.split(',').map(value => `&status[]=${value}`);
+        if (statuses.length === 1) statuses.push(statuses[0]);
         return new Promise((resolve, reject) => {
-            //axios.get(`${GET_ALL_BANDS_URL}${filter}&iDisplayStart=${start}`)
-            axios.get(`${GET_ALL_BANDS_URL + start.toString()}&bandName=${bandName}&genre=${genre}`)
+            axios.get(`${GET_ALL_BANDS_URL}?bandName=${bandName}&genre=${genre}${countries.join("")}&yearCreationFrom=${formationFrom}&yearCreationTo=${formationTo}&bandNotes=&status=${statuses.join("")}&themes=&location=&bandLabelName=&sEcho=1&iColumns=5&sColumns=&iDisplayStart=${start}&iDisplayLength=200&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&mDataProp_4=4`)
                 .then(({data}) => {
                     const bands = data.aaData;
                     const resp = [];
@@ -165,19 +136,33 @@ class Scraper {
     static getBandCount() {
         return new Promise((resolve, reject) => {
             axios.get(GET_ALL_BANDS_URL)
-                .then(({data}) => {
+                .then(({ data }) => {
                     const count = data.iTotalRecords;
                     resolve(count);
                 }).catch(err => reject(err));
         });
     }
 
-    static getDisc(discID) {
+    static async getRandomBand() {
+        let rStart = await this.getBandCount() / 200;
+        rStart = Math.ceil(Math.random() * Math.ceil(rStart));
+        let id = null;
+        await axios.get(`${GET_ALL_BANDS_URL}?&iDisplayStart=${rStart}&iDisplayLength=200&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&mDataProp_4=4`)
+            .then(({ data }) => {
+                let rIndex = Math.ceil(Math.random() * 200);
+                const $ = cheerio.load(data.aaData[rIndex][0]);
+                const aHref = $('a').attr('href');
+                id = parseInt(aHref.substr(aHref.lastIndexOf('/') + 1), 10);
+            });
+        return await this.getBand(id);
+    }
+
+    static getDisc(albumID) {
         return new Promise((resolve, reject) => {
-            axios.get(GET_DISC_URL + discID.toString())
+            axios.get(GET_DISC_URL + albumID.toString())
                 .then(({ data }) => {
                     const $ = cheerio.load(data);
-                    const id = discID;
+                    const id = albumID;
                     const name = $('.album_name a').text().trim();
                     const band = $('.band_name a').text().trim();
                     const type = $('#album_content .float_left dt').nextAll().eq(0).text().trim();
@@ -228,7 +213,7 @@ class Scraper {
         });
     }
 
-    static getReviews(year, month, sort, start) {
+    static getReviewsByDate(year, month, sort, start) {
         return new Promise((resolve, reject) => {
             axios.get(`${GET_ALL_REVIEWS_BY_DATE_URL}${year}-${month}?sEcho=1&iColumns=7&sColumns=&iDisplayStart=${start}&iDisplayLength=200&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&mDataProp_4=4&mDataProp_5=5&mDataProp_6=6&iSortCol_0=1&sSortDir_0=${sort}`)
                 .then(({ data }) => {
@@ -253,7 +238,7 @@ class Scraper {
 
     static getReview(reviewID, albumID) {
         return new Promise((resolve, reject) => {
-            axios.get(`https://www.metal-archives.com/reviews///${albumID}//${reviewID}`)
+            axios.get(`${BASE_URL}/reviews///${albumID}//${reviewID}`)
                 .then(({ data }) => {
                     const $ = cheerio.load(data);
                     const id = reviewID;
@@ -303,6 +288,39 @@ class Scraper {
                 }).catch(err => reject(err));
         });
     }
+    static getDiscSongs(discID) {
+        return new Promise((resolve, reject) => {
+            axios.get(GET_DISC_URL + discID.toString())
+                .then(({ data }) => {
+                    let songs = [];
+                    const $ = cheerio.load(data);
+                    const band = $('.band_name a').text();
+                    const album = $('.album_name a').text();
+                    const discSongs = $('#album_tabs table.display.table_lyrics tbody').find('tr');
+                    discSongs.each((i, el) => {
+                        const elClass = $(el).attr('class');
+                        if (elClass !== 'even' && elClass !== 'odd') {
+                            return;
+                        }
+                        const number = $(el).find('td').eq(0).text();
+                        const title = $(el).find('td').eq(1).text().trim();
+                        const length = $(el).find('td').eq(2).text();
+                        const lyricsId = $(el).nextAll().find('td[id*=lyrics_]').attr('id').replace('lyrics_','');
+                        const song = {
+                            number,
+                            title,
+                            band,
+                            album,
+                            length,
+                            lyricsId
+                        };
+                        songs.push(song);
+                    });
+                    resolve(songs);
+                }).catch(err => reject(err));
+        });
+    }
+
 
     static getDiscReviews(albumID) {
         return new Promise((resolve, reject) => {
@@ -328,6 +346,44 @@ class Scraper {
                         } catch (e) {}
                     });
                     resolve(reviews);
+                }).catch(err => reject(err));
+        });
+    }
+
+    static async getDiscVersions(albumID) {
+        let GET_DISC_VERSIONS = '';
+        await axios.get(GET_DISC_URL + albumID.toString())
+            .then(({ data }) => {
+                const $ = cheerio.load(data);
+                $('ul.ui-tabs-nav').find('li').each((i, el) => {
+                    if (i === 2)
+                        GET_DISC_VERSIONS = $(el).eq(0).children().attr('href');
+                });
+            });
+        return new Promise((resolve, reject) => {
+            axios.get(GET_DISC_VERSIONS)
+                .then(({ data }) => {
+                    const $ = cheerio.load(data);
+                    const versions = [];
+
+                    $('table.display tbody').children().each((i, el) => {
+                        const versionUrl = $(el).children().eq(0).children()
+                            .attr('href');
+                        const id = parseInt(versionUrl.substr(versionUrl.lastIndexOf('/') + 1), 10);
+                        const releaseDate = $(el).children().eq(0).children().text().trim()
+                            .replace(/(Unofficial)/g,' (Unofficial)');
+                        const label = $(el).children().eq(1).text().trim();
+                        const format = $(el).children().eq(3).text().trim();
+                        const description = $(el).children().eq(4).text().trim();
+                        versions.push({
+                            id,
+                            releaseDate,
+                            label,
+                            format,
+                            description
+                        })
+                    });
+                    resolve(versions);
                 }).catch(err => reject(err));
         });
     }

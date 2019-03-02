@@ -138,7 +138,6 @@ query {
 * Artists
 
 ###### Search
-* Advanced Bands search
 * Advanced Albums search
 * Advanced Songs search
 
@@ -147,7 +146,6 @@ query {
 
 ###### Album
 * Get lineup
-* Get other versions
 
 ## Changelog
 

@@ -17,13 +17,13 @@ const ReviewType = require('./Review');
 // Resolvers //
 const {
     // Band //
-    getBands, getBand,
+    getBands, getBand, getRandomBand,
     // Album //
     getAlbum,
     // Lyrics //
     getLyrics,
     // Review //
-    getReviews, getReview
+    getReviewsByDate, getReview
 } = require('../resolvers');
 
 const QueryType = new GraphQLObjectType({
@@ -47,6 +47,24 @@ const QueryType = new GraphQLObjectType({
                     type: GraphQLString,
                     description: 'Band genre.'
                 },
+                country: {
+                    type: GraphQLString,
+                    description: 'Country code.\nAccept multiple codes separated by coma.'
+                },
+                formationFrom: {
+                    type: GraphQLString,
+                    description: 'Initial formation year.'
+                },
+                formationTo: {
+                    type: GraphQLString,
+                    description: 'Final formation year'
+                },
+                status: {
+                    type: GraphQLString,
+                    description: 'Band status.\n' +
+                        '[ `0` : Any, `1` : Active, `2` : On hold, `3` : Split-up, `4` : Unknown, `5` : Changed Name, `6` : Disputed ].\n' +
+                        'Accept multiple status separated by coma.'
+                },
                 start: {
                     type: GraphQLInt,
                     description: 'Specifies start index to show bands.'
@@ -64,6 +82,11 @@ const QueryType = new GraphQLObjectType({
                 }
             },
             resolve: async (root, args) => await getBand(args)
+        },
+        randomBand: {
+            type: BandType,
+            description: 'Get random Band Attributes',
+            resolve: async () => await getRandomBand()
         },
         // Album //
         album: {
@@ -90,16 +113,16 @@ const QueryType = new GraphQLObjectType({
             resolve: async (root, args) => await getLyrics(args)
         },
         // Review //
-        reviews: {
+        reviewsByDate: {
             type: GraphQLList(ReviewsType),
             description: 'Get Reviews List.',
             args: {
                 year: {
-                    type: GraphQLString,
+                    type: GraphQLNonNull(GraphQLString),
                     description: 'Publication year. Default value is current Year.',
                 },
                 month: {
-                    type: GraphQLString,
+                    type: GraphQLNonNull(GraphQLString),
                     description: 'Publication month. Default value is current Month.'
                 },
                 sort: {
@@ -111,7 +134,7 @@ const QueryType = new GraphQLObjectType({
                     description: 'Specifies start index to show reviews.'
                 }
             },
-            resolve: async (root, args) => await getReviews(args)
+            resolve: async (root, args) => await getReviewsByDate(args)
         },
         review: {
             type: ReviewType,
