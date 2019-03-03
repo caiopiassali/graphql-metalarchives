@@ -356,11 +356,11 @@ class Scraper {
             .then(({ data }) => {
                 const $ = cheerio.load(data);
                 $('ul.ui-tabs-nav').find('li').each((i, el) => {
-                    if (i === 2)
+                    if ($(el).eq(0).children().text().trim().toLowerCase() === 'other versions')
                         GET_DISC_VERSIONS = $(el).eq(0).children().attr('href');
                 });
             });
-        return new Promise((resolve, reject) => {
+        return GET_DISC_VERSIONS === '' ? [] : new Promise((resolve, reject) => {
             axios.get(GET_DISC_VERSIONS)
                 .then(({ data }) => {
                     const $ = cheerio.load(data);
