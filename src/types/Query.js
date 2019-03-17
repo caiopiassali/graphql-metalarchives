@@ -13,6 +13,7 @@ const AlbumType = require('./Album');
 const LyricsType = require('./Lyrics');
 const ReviewsType = require('./Reviews');
 const ReviewType = require('./Review');
+const ArtistType = require('./Artist');
 
 // Resolvers //
 const {
@@ -23,7 +24,9 @@ const {
     // Lyrics //
     getLyrics,
     // Review //
-    getReviewsByDate, getReview
+    getReviewsByDate, getReview,
+    // Artist //
+    getArtist
 } = require('../resolvers');
 
 const QueryType = new GraphQLObjectType({
@@ -150,6 +153,18 @@ const QueryType = new GraphQLObjectType({
                 }
             },
             resolve: async (root, args) => await getReview(args)
+        },
+        // Artist //
+        artist: {
+            type: ArtistType,
+            description: 'Get Artist Attributes.',
+            args: {
+                id: {
+                    type: GraphQLNonNull(GraphQLString),
+                    description: 'Artist unique identifier.'
+                }
+            },
+            resolve: async (root, args) => await getArtist(args)
         }
     })
 });

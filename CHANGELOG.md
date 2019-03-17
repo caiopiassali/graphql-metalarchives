@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2019-03-24
+### Added
+- Get Artist.
+- Get Band Members.
+- Get Album Lineup.
+- Album attributes (catalogId, limitation, versionDescription).
+
 ## [0.0.4] - 2019-03-02
 ### Added
 - Advanced Band search.

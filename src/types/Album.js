@@ -6,11 +6,12 @@ const {
 
 // Types //
 const SongType = require('./Song');
+const MemberType = require('./Member');
 const AlbumReview = require('./AlbumReview');
 const AlbumVersion = require('./AlbumVersion');
 
 // Resolvers //
-const { getAlbumSongs, getAlbumReviews, getAlbumVersions } = require('../resolvers');
+const { getAlbumSongs, getAlbumReviews, getAlbumVersions, getAlbumLineup } = require('../resolvers');
 
 module.exports = new GraphQLObjectType({
     name: 'Album',
@@ -44,6 +45,18 @@ module.exports = new GraphQLObjectType({
             type: GraphQLString,
             description: 'Album format.'
         },
+        catalogId: {
+            type: GraphQLString,
+            description: 'Catalog ID.'
+        },
+        limitation: {
+            type: GraphQLString,
+            description: 'Album limitation.'
+        },
+        versionDescription: {
+            type: GraphQLString,
+            description: 'Version description.'
+        },
         coverUrl: {
             type: GraphQLString,
             description: 'Album cover url.'
@@ -52,6 +65,17 @@ module.exports = new GraphQLObjectType({
             type: GraphQLList(SongType),
             description: 'Album songs list.',
             resolve: async (disc) => await getAlbumSongs({ id: disc.id })
+        },
+        lineup: {
+            type: GraphQLList(MemberType),
+            description: 'Album lineup.',
+            args: {
+                type: {
+                    type: GraphQLString,
+                    description: 'Type. [`all` | `member` | `guest` | `staff`].'
+                }
+            },
+            resolve: async (disc, args) => await getAlbumLineup({ id: disc.id, type: args.type })
         },
         reviews: {
             type: GraphQLList(AlbumReview),

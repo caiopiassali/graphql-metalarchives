@@ -132,21 +132,6 @@ query {
 }
 ```
 
-### To-Do
-
-###### Queries
-* Artists
-
-###### Search
-* Advanced Albums search
-* Advanced Songs search
-
-###### Band
-* Get members
-
-###### Album
-* Get lineup
-
 ## Changelog
 
 Read [CHANGELOG.md](CHANGELOG.md) for release details and changes.

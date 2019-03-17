@@ -15,6 +15,8 @@ const SEARCH_SONGS_URL = BASE_URL + '/search/ajax-advanced/searching/songs';
 const GET_LYRISC_URL = BASE_URL + '/release/ajax-view-lyrics/id/';
 const GET_ALL_REVIEWS_BY_DATE_URL = BASE_URL + '/review/ajax-list-browse/by/date/selection/';
 const GET_BAND_REVIEWS_URL = BASE_URL + '/review/ajax-list-band/id/';
+const GET_ARTIST_URL = BASE_URL + '/artists//';
+const GET_ARTIST_READ_MORE = BASE_URL + '/artist/read-more/id/';
 
 class Scraper {
     static searchSongs(songTitle, bandName, lyrics, start, length) {
@@ -45,21 +47,6 @@ class Scraper {
                         };
                     });
                     resolve({ totalResult, currentResult, songs });
-                })
-                .catch(err => reject(err));
-        });
-    }
-
-    static getLyrics(lyricsId) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${GET_LYRISC_URL}${lyricsId.toString()}`)
-                .then(({ data }) => {
-                    const lyrics = cheerio.load(data)('body').text().trim();
-                    const resp = {
-                        id: lyricsId,
-                        lyrics
-                    }
-                    resolve(resp);
                 })
                 .catch(err => reject(err));
         });
@@ -133,6 +120,73 @@ class Scraper {
         });
     }
 
+    static getBandMembers(bandId) {
+        return new Promise((resolve, reject) => {
+            axios.get(`${GET_BAND_URL + bandId.toString()}`)
+                .then(({ data }) => {
+                    const $ = cheerio.load(data);
+                    const artists = [];
+                    let type;
+                    const bandMembers = $('div#band_members div#band_tab_members_all div.ui-tabs-panel-content table tbody').find('tr');
+                    bandMembers.each((i, el) => {
+                        let id, name, role, info;
+                        const elClass = $(el).attr('class');
+                        if (elClass === 'lineupHeaders') {
+                            type = $(el).children().eq(0).text().trim()
+                                .replace(/[\n|\t]/g, '');
+                            return;
+                        }
+                        if (elClass === 'lineupBandsRow')
+                            return;
+                        if (elClass === 'lineupRow') {
+                            const artistUrl = $(el).find('td').eq(0).children().attr('href');
+                            id = parseInt(artistUrl.substr(artistUrl.lastIndexOf('/') + 1), 10);
+                            name = $(el).find('td').eq(0).children().text().trim();
+                            role = $(el).children().nextAll().eq(0).text().trim();
+                            info = $(el).nextAll().children().eq(0)
+                                .text()
+                                .trim()
+                                .replace(/[\n|\t]/g, '')
+                                .replace(')', ') ')
+                                .replace(':', ': ')
+                                .trim();
+                        }
+                        artists.push({
+                            id,
+                            name,
+                            role,
+                            info,
+                            type
+                        });
+                    });
+                    resolve(artists);
+                }).catch(err => reject(err));
+        });
+    }
+
+    static getBandReviews(bandID, start) {
+        return new Promise((resolve, reject) => {
+            axios.get(`${GET_BAND_REVIEWS_URL + bandID.toString()}/json/1?sEcho=1&iColumns=4&sColumns=&iDisplayLength=200&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&iSortCol_0=3&sSortDir_0=desc&iDisplayStart=${start}`)
+                .then(({ data }) => {
+                    const reviews = data.aaData;
+                    const resp = [];
+                    reviews.forEach((review) => {
+                        const $ = cheerio.load(review[0]);
+                        const aHref = $('a').attr('href');
+                        const reviewObj = {
+                            id: parseInt(aHref.substr(aHref.lastIndexOf('/') + 1), 10),
+                            albumId: getReviewAlbumId(aHref),
+                            album: $('a').text().trim(),
+                            rating: review[1],
+                            date: review[3]
+                        };
+                        resp.push(reviewObj);
+                    });
+                    resolve(resp);
+                }).catch(err => reject(err));
+        });
+    }
+
     static getBandCount() {
         return new Promise((resolve, reject) => {
             axios.get(GET_ALL_BANDS_URL)
@@ -169,6 +223,14 @@ class Scraper {
                     const releaseDate = $('#album_content .float_left dt').nextAll().eq(2).text().trim();
                     const label = $('#album_content .float_right dt').nextAll().eq(0).text().trim();
                     const format = $('#album_content .float_right dt').nextAll().eq(2).text().trim();
+                    const catalogId = $('#album_content .float_left dt').nextAll().eq(4).text().trim();
+                    const versionDescription = $('#album_content .float_left dt').nextAll().eq(6).text().trim();
+                    let limitation = $('#album_content .float_right dt').nextAll().eq(3).text().trim().toLowerCase();
+                    if (limitation === 'limitation:') {
+                        limitation = $('#album_content .float_right dt').nextAll().eq(4).text().trim();
+                    } else {
+                        limitation = '';
+                    }
                     const coverUrl = $('#cover').attr('href');
                     const disc = {
                         id,
@@ -178,6 +240,9 @@ class Scraper {
                         releaseDate,
                         label,
                         format,
+                        catalogId,
+                        limitation,
+                        versionDescription,
                         coverUrl
                     };
                     resolve(disc);
@@ -213,81 +278,6 @@ class Scraper {
         });
     }
 
-    static getReviewsByDate(year, month, sort, start) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${GET_ALL_REVIEWS_BY_DATE_URL}${year}-${month}?sEcho=1&iColumns=7&sColumns=&iDisplayStart=${start}&iDisplayLength=200&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&mDataProp_4=4&mDataProp_5=5&mDataProp_6=6&iSortCol_0=1&sSortDir_0=${sort}`)
-                .then(({ data }) => {
-                    const reviews = data.aaData;
-                    const resp = [];
-                    reviews.forEach((review) => {
-                        const $ = cheerio.load(review[1]);
-                        const aHref = $('a').attr('href');
-                        const reviewObj = {
-                            id: aHref.substr(aHref.lastIndexOf('/') + 1),
-                            albumId: getReviewAlbumId(aHref),
-                            album: $(review[3]).text().trim(),
-                            rating: review[4],
-                            date: formatDate(review[0], year)
-                        };
-                        resp.push(reviewObj);
-                    });
-                    resolve(resp);
-                }).catch(err => reject(err));
-        });
-    }
-
-    static getReview(reviewID, albumID) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${BASE_URL}/reviews///${albumID}//${reviewID}`)
-                .then(({ data }) => {
-                    const $ = cheerio.load(data);
-                    const id = reviewID;
-                    const title = $('h3.reviewTitle').text().substring(0, $('h3.reviewTitle').text().lastIndexOf('-') - 1).trim();
-                    const album = $('#album_content h1.album_name').text().trim();
-                    const band = $('#album_content h2.band_name').text().trim();
-                    const rating = $('h3.reviewTitle').text().substr($('h3.reviewTitle').text().lastIndexOf('-') + 1, 10).trim();
-                    const divText = $('h3.reviewTitle').nextAll().eq(0).text().trim();
-                    const divText2 = divText.substr(divText.indexOf(',') + 2);
-                    const date = divText2.indexOf('\n') === -1 ?
-                        divText2.substring(divText2.indexOf('\n')).trim() :
-                        divText2.substring(0, divText2.indexOf('\n')).trim();
-                    const text = $('div.reviewContent').text().trim();
-                    const review = {
-                        id,
-                        title,
-                        album,
-                        band,
-                        rating,
-                        date,
-                        text
-                    };
-                    resolve(review);
-                }).catch(err => reject(err));
-        });
-    }
-
-    static getBandReviews(bandID, start) {
-        return new Promise((resolve, reject) => {
-            axios.get(`${GET_BAND_REVIEWS_URL + bandID.toString()}/json/1?sEcho=1&iColumns=4&sColumns=&iDisplayLength=200&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&iSortCol_0=3&sSortDir_0=desc&iDisplayStart=${start}`)
-                .then(({ data }) => {
-                    const reviews = data.aaData;
-                    const resp = [];
-                    reviews.forEach((review) => {
-                        const $ = cheerio.load(review[0]);
-                        const aHref = $('a').attr('href');
-                        const reviewObj = {
-                            id: parseInt(aHref.substr(aHref.lastIndexOf('/') + 1), 10),
-                            albumId: getReviewAlbumId(aHref),
-                            album: $('a').text().trim(),
-                            rating: review[1],
-                            date: review[3]
-                        };
-                        resp.push(reviewObj);
-                    });
-                    resolve(resp);
-                }).catch(err => reject(err));
-        });
-    }
     static getDiscSongs(discID) {
         return new Promise((resolve, reject) => {
             axios.get(GET_DISC_URL + discID.toString())
@@ -321,6 +311,37 @@ class Scraper {
         });
     }
 
+    static getDiscLineup(albumID) {
+        return new Promise((resolve, reject) => {
+            axios.get(GET_DISC_URL + albumID.toString())
+                .then(({data}) => {
+                    const $ = cheerio.load(data);
+                    const lineup = [];
+                    let type;
+                    const discLineup = $('div#album_members div#album_all_members_lineup div.ui-tabs-panel-content table tbody').find('tr');
+                    discLineup.each((i, el) => {
+                        let id, name, role;
+                        const elClass = $(el).attr('class');
+                        if (elClass === 'lineupHeaders') {
+                            type = $(el).children().eq(0).text().trim()
+                                .replace(/[\n|\t]/g, '');
+                            return;
+                        }
+                        const artistUrl = $(el).find('td').eq(0).children().attr('href');
+                        id = parseInt(artistUrl.substr(artistUrl.lastIndexOf('/') + 1), 10);
+                        name = $(el).find('td').eq(0).children().text().trim();
+                        role = $(el).children().nextAll().eq(0).text().trim();
+                        lineup.push({
+                            id,
+                            name,
+                            role,
+                            type
+                        });
+                        resolve(lineup);
+                    });
+                }).catch(err => reject(err));
+        });
+    }
 
     static getDiscReviews(albumID) {
         return new Promise((resolve, reject) => {
@@ -384,6 +405,126 @@ class Scraper {
                         })
                     });
                     resolve(versions);
+                }).catch(err => reject(err));
+        });
+    }
+
+    static getLyrics(lyricsId) {
+        return new Promise((resolve, reject) => {
+            axios.get(`${GET_LYRISC_URL}${lyricsId.toString()}`)
+                .then(({ data }) => {
+                    const lyrics = cheerio.load(data)('body').text().trim();
+                    const resp = {
+                        id: lyricsId,
+                        lyrics
+                    }
+                    resolve(resp);
+                })
+                .catch(err => reject(err));
+        });
+    }
+
+    static getReviewsByDate(year, month, sort, start) {
+        return new Promise((resolve, reject) => {
+            axios.get(`${GET_ALL_REVIEWS_BY_DATE_URL}${year}-${month}?sEcho=1&iColumns=7&sColumns=&iDisplayStart=${start}&iDisplayLength=200&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&mDataProp_4=4&mDataProp_5=5&mDataProp_6=6&iSortCol_0=1&sSortDir_0=${sort}`)
+                .then(({ data }) => {
+                    const reviews = data.aaData;
+                    const resp = [];
+                    reviews.forEach((review) => {
+                        const $ = cheerio.load(review[1]);
+                        const aHref = $('a').attr('href');
+                        const reviewObj = {
+                            id: aHref.substr(aHref.lastIndexOf('/') + 1),
+                            albumId: getReviewAlbumId(aHref),
+                            album: $(review[3]).text().trim(),
+                            rating: review[4],
+                            date: formatDate(review[0], year)
+                        };
+                        resp.push(reviewObj);
+                    });
+                    resolve(resp);
+                }).catch(err => reject(err));
+        });
+    }
+
+    static getReview(reviewID, albumID) {
+        return new Promise((resolve, reject) => {
+            axios.get(`${BASE_URL}/reviews///${albumID}//${reviewID}`)
+                .then(({ data }) => {
+                    const $ = cheerio.load(data);
+                    const id = reviewID;
+                    const title = $('h3.reviewTitle').text().substring(0, $('h3.reviewTitle').text().lastIndexOf('-') - 1).trim();
+                    const album = $('#album_content h1.album_name').text().trim();
+                    const band = $('#album_content h2.band_name').text().trim();
+                    const rating = $('h3.reviewTitle').text().substr($('h3.reviewTitle').text().lastIndexOf('-') + 1, 10).trim();
+                    const divText = $('h3.reviewTitle').nextAll().eq(0).text().trim();
+                    const divText2 = divText.substr(divText.indexOf(',') + 2);
+                    const date = divText2.indexOf('\n') === -1 ?
+                        divText2.substring(divText2.indexOf('\n')).trim() :
+                        divText2.substring(0, divText2.indexOf('\n')).trim();
+                    const text = $('div.reviewContent').text().trim();
+                    const review = {
+                        id,
+                        title,
+                        album,
+                        band,
+                        rating,
+                        date,
+                        text
+                    };
+                    resolve(review);
+                }).catch(err => reject(err));
+        });
+    }
+
+    static getArtist(artistID) {
+        return new Promise((resolve, reject) => {
+            axios.get(GET_ARTIST_URL + artistID.toString())
+                .then(async ({data}) => {
+                    const $ = cheerio.load(data);
+                    const id = artistID;
+                    const name = $('.band_member_name').text();
+                    const realName = $('#member_info .float_left dt').nextAll().eq(0).text().trim();
+                    const age = $('#member_info .float_left dt').nextAll().eq(2).text().trim();
+                    const origin = $('#member_info .float_right dt').nextAll().eq(0).text().trim();
+                    const gender = $('#member_info .float_right dt').nextAll().eq(2).text().trim();
+                    const photoUrl = $('#artist.image').attr('href');
+                    const biography = await this.getArtistBiography(artistID);
+                    const trivia = await this.getArtistTrivia(artistID);
+                    const artist = {
+                        id,
+                        name,
+                        realName,
+                        age,
+                        origin,
+                        gender,
+                        photoUrl,
+                        biography,
+                        trivia
+                    };
+                    resolve(artist);
+                }).catch(err => reject(err));
+        });
+    }
+
+    static async getArtistBiography(artistID) {
+        return new Promise((resolve, reject) => {
+            axios.get(GET_ARTIST_READ_MORE + artistID.toString())
+                .then(({ data }) => {
+                    const $ = cheerio.load(data);
+                    const biography = $.text().trim();
+                    resolve(biography);
+                }).catch(err => reject(err));
+        });
+    }
+
+    static async getArtistTrivia(artistID) {
+        return new Promise((resolve, reject) => {
+            axios.get(`${GET_ARTIST_READ_MORE + artistID.toString()}/field/trivia`)
+                .then(({data}) => {
+                    const $ = cheerio.load(data);
+                    const trivia = $.text().trim();
+                    resolve(trivia);
                 }).catch(err => reject(err));
         });
     }

@@ -7,10 +7,11 @@ const {
 
 // Types //
 const AlbumsType = require('./Albums');
+const MemberType = require('./Member');
 const ReviewsType = require('./Reviews');
 
 // Resolvers //
-const { getBandDiscs, getBandReviews } = require('../resolvers');
+const { getBandDiscs, getBandReviews, getBandMembers } = require('../resolvers');
 
 module.exports = new GraphQLObjectType({
     name: 'Band',
@@ -74,6 +75,17 @@ module.exports = new GraphQLObjectType({
                 }
             },
             resolve: async (band, args) => await getBandDiscs({ id: band.id, type: args.type })
+        },
+        members: {
+            type: GraphQLList(MemberType),
+            description: 'Band Members.',
+            args: {
+                type: {
+                    type: GraphQLString,
+                    description: 'Member type. [`all` | `current` | `past` | `live`].'
+                }
+            },
+            resolve: async (band, args) => await getBandMembers({ id: band.id, type: args.type })
         },
         reviews: {
             type: GraphQLList(ReviewsType),

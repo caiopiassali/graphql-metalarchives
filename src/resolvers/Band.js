@@ -20,5 +20,21 @@ module.exports = {
     getBandReviews: async (args) => {
         const start = args.start || 0;
         return await Scraper.getBandReviews(args.id, start);
+    },
+    getBandMembers: async (args) => {
+        const type = args.type || 'all';
+        const response = await Scraper.getBandMembers(args.id);
+        switch (type) {
+            case 'all':
+                return response;
+            case 'current':
+            case 'past':
+                return response.filter(e => e.type.toLowerCase().search(type) !== -1 &&
+                    e.type.toLowerCase().search('live') === -1);
+            case 'live':
+                return response.filter(e => e.type.toLowerCase().search(type) !== -1);
+            default:
+                return [];
+        }
     }
 };
