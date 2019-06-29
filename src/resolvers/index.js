@@ -2,7 +2,7 @@
 // Band //
 const { getBands, getBand, getRandomBand, getBandDiscs, getBandReviews, getBandMembers } = require('./Band');
 // Album //
-const { getAlbum, getAlbumSongs, getAlbumReviews, getAlbumVersions, getAlbumLineup } = require('./Album');
+const { getAlbums, getAlbum, getAlbumSongs, getAlbumReviews, getAlbumVersions, getAlbumLineup } = require('./Album');
 // Lyrics //
 const { getLyrics } = require('./Lyrics');
 // Review //
@@ -19,6 +19,7 @@ module.exports = {
     getBandReviews,
     getBandMembers,
     // Album //
+    getAlbums,
     getAlbum,
     getAlbumSongs,
     getAlbumReviews,

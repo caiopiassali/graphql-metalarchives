@@ -9,6 +9,7 @@ const {
 const BASE_URL = 'https://www.metal-archives.com';
 const GET_ALL_BANDS_URL = BASE_URL + '/search/ajax-advanced/searching/bands/';
 const GET_BAND_URL = BASE_URL + '/bands/sieversiever/';
+const GET_DISCS_URL = BASE_URL + '/search/ajax-advanced/searching/albums/';
 const GET_DISC_URL = BASE_URL + '/albums///';
 const GET_DISCOG_URL = BASE_URL + '/band/discography/id/';
 const SEARCH_SONGS_URL = BASE_URL + '/search/ajax-advanced/searching/songs';
@@ -211,6 +212,36 @@ class Scraper {
         return await this.getBand(id);
     }
 
+    static getDiscs(bandName, albumName, genre, type, start) {
+        let types = '';
+        if (type.length !== 0) {
+            types = type.split(',').map(value => `&releaseType[]=${value}`);
+        } else {
+            types = [ '' ];
+        }
+        const yearFrom = '1900';
+        const monthFrom = '01';
+        return new Promise((resolve, reject) => {
+            axios.get(`${GET_DISCS_URL}?bandName=${bandName}&releaseTitle=${albumName}&releaseYearFrom=${yearFrom}&releaseMonthFrom=${monthFrom}&releaseYearTo=&releaseMonthTo=&location=&releaseLabelName=&releaseCatalogNumber=&releaseIdentifiers=&releaseRecordingInfo=&releaseDescription=&releaseNotes=&genre=${genre}${types.join("")}&sEcho=1&iColumns=4&sColumns=&iDisplayStart=${start}&iDisplayLength=200&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3`)
+                .then(({ data }) => {
+                    const discs = data.aaData;
+                    const resp = [];
+                    discs.forEach((disc) => {
+                        const $ = cheerio.load(disc[1]);
+                        const aHref = $('a').attr('href');
+                        const discObj = {
+                            name: $('a').text(),
+                            id: parseInt(aHref.substr(aHref.lastIndexOf('/') + 1), 10),
+                            type: disc[2],
+                            year: disc[disc.length - 1].substr(disc[disc.length - 1].indexOf('<') + 5, 4)
+                        };
+                        resp.push(discObj);
+                    });
+                    resolve(resp);
+                }).catch(err => reject(err));
+        });
+    }
+
     static getDisc(albumID) {
         return new Promise((resolve, reject) => {
             axios.get(GET_DISC_URL + albumID.toString())
@@ -330,7 +361,7 @@ class Scraper {
                         const artistUrl = $(el).find('td').eq(0).children().attr('href');
                         id = parseInt(artistUrl.substr(artistUrl.lastIndexOf('/') + 1), 10);
                         name = $(el).find('td').eq(0).children().text().trim();
-                        role = $(el).children().nextAll().eq(0).text().trim();
+                        role = $(el).children().nextAll().eq(0).text().replace(/\t/g, '').trim();
                         lineup.push({
                             id,
                             name,

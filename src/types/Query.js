@@ -9,6 +9,7 @@ const {
 // Types //
 const BandsType = require('./Bands');
 const BandType = require('./Band');
+const AlbumsType = require('./Albums');
 const AlbumType = require('./Album');
 const LyricsType = require('./Lyrics');
 const ReviewsType = require('./Reviews');
@@ -20,7 +21,7 @@ const {
     // Band //
     getBands, getBand, getRandomBand,
     // Album //
-    getAlbum,
+    getAlbums, getAlbum,
     // Lyrics //
     getLyrics,
     // Review //
@@ -92,6 +93,36 @@ const QueryType = new GraphQLObjectType({
             resolve: async () => await getRandomBand()
         },
         // Album //
+        albums: {
+            type: GraphQLList(AlbumsType),
+            description: 'Get Album List.',
+            args: {
+                band: {
+                    type: GraphQLString,
+                    description: 'Band name.'
+                },
+                title: {
+                    type: GraphQLString,
+                    description: 'Album name.'
+                },
+                genre: {
+                    type: GraphQLString,
+                    description: 'Band genre.'
+                },
+                type: {
+                    type: GraphQLString,
+                    description: 'Album type.\n' +
+                        '[ `1` : Full-length, `2` : Live album, `3` : Demo, `4` : Single, `5` : EP, `6` : Video,' +
+                        '`7` : Boxed set, `8` : Split, `9` : Compilation, `10` : Split Video ].\n' +
+                        'Accept multiple types separated by coma.'
+                },
+                start: {
+                    type: GraphQLInt,
+                    description: 'Specifies start index to show albums.'
+                }
+            },
+            resolve: async (root, args) => await getAlbums(args)
+        },
         album: {
             type: AlbumType,
             description: 'Get Album Details.',

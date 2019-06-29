@@ -1,4 +1,4 @@
-const getReviewAlbumId = (str) => {
+const getReviewAlbumId = str => {
     let indices = [];
     for(let i = 0; i < str.length; i++) {
         if (str[i] === "/") indices.push(i);
@@ -12,7 +12,7 @@ const formatDate = (date, year) => {
     return `${date}, ${year}`;
 };
 
-const getMonthNumber = (monthName) => {
+const getMonthNumber = monthName => {
     const months = [{long: 'January', short: 'Jan'},
         {long: 'February', short: 'Feb'},
         {long: 'March', short: 'Mar'},
