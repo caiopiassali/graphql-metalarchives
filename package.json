@@ -1,15 +1,17 @@
 {
   "name": "graphql-metalarchives",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "GraphQL API for metal-archives.com",
-  "main": "server.js",
+  "main": "./src/index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "ts-node -- ./src/index.ts",
+    "dev": "nodemon --exec ts-node -- ./src/index.ts"
   },
   "keywords": [
     "graphql",
     "node.js",
+    "nestjs",
+    "typescript",
     "metal-archives"
   ],
   "author": {
@@ -23,12 +25,44 @@
   },
   "license": "GPL-2.0",
   "dependencies": {
+    "@nestjs/common": "^6.7.2",
+    "@nestjs/core": "^6.7.2",
+    "@nestjs/graphql": "^6.5.1",
+    "@nestjs/platform-express": "^6.7.2",
+    "apollo-server-express": "^2.9.3",
     "axios": "^0.19.0",
-    "cheerio": "^1.0.0-rc.2",
-    "graphql": "^14.1.1",
-    "graphql-yoga": "^1.17.4"
+    "axios-extensions": "^3.0.6",
+    "cheerio": "^1.0.0-rc.3",
+    "class-transformer": "^0.2.3",
+    "class-validator": "^0.10.0",
+    "graphql": "^14.5.7",
+    "graphql-tools": "^4.0.5",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^6.5.3",
+    "type-graphql": "^0.17.5"
   },
   "devDependencies": {
-    "nodemon": "^1.18.9"
+    "@nestjs/testing": "^6.9.0",
+    "@types/cheerio": "^0.22.13",
+    "@types/jest": "^24.0.22",
+    "@types/node": "^12.7.5",
+    "jest": "^24.9.0",
+    "nodemon": "^1.19.2",
+    "supertest": "^4.0.2",
+    "ts-jest": "^24.1.0",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.3"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec|e2e-spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ]
   }
 }

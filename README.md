@@ -132,6 +132,14 @@ query {
 }
 ```
 
+## Technologies
+
+* [Node.js](https://nodejs.org/)
+* [Typescript](https://www.typescriptlang.org/)
+* [NestJS](https://docs.nestjs.com/)
+* [GraphQL](https://graphql.org/)
+* [TypeGraphQL](https://typegraphql.ml/docs/introduction.html)
+
 ## Changelog
 
 Read [CHANGELOG.md](CHANGELOG.md) for release details and changes.
