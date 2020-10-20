@@ -7,6 +7,8 @@ So this repository exists to provide a way to recover these infos with a GraphQL
 
 ### Demo
 
+\* The Demo can take 3 to 5 minutes to load.
+
 [Live Demo](https://graphql-metalarchives.glitch.me/)
 
 ### Install
@@ -37,6 +39,8 @@ npm start
 ```sh
 npm run dev
 ```
+
+After running the application the GraphQL Playground will be available at `http://localhost:4000/graphql`
 
 ### Queries
 
