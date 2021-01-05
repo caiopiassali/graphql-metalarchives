@@ -30,7 +30,7 @@
     "@nestjs/graphql": "^6.5.1",
     "@nestjs/platform-express": "^6.7.2",
     "apollo-server-express": "^2.14.2",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "axios-extensions": "^3.0.6",
     "cheerio": "^1.0.0-rc.3",
     "class-transformer": "^0.3.1",
